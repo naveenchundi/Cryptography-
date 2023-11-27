@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to remove spaces and non-alphabetic characters from the input string
+void cleanString(char *text) {
+    int i, j = 0;
+    for (i = 0; text[i] != '\0'; i++) {
+        if (isalpha(text[i])) {
+            text[j++] = toupper(text[i]);
+        }
+    }
+    text[j] = '\0';
+}
+
+// Function to find the position of a character in the key table
+void findPosition(char keyTable[5][5], char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I'; // Handling I and J as the same letter
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (keyTable[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+
+// Function to decrypt Playfair cipher
+void decryptPlayfair(char *ciphertext, char *key) {
+    char keyTable[5][5];
+    int i, j, k = 0;
+
+    // Creating the key table
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            while (k < strlen(key)) {
+                char ch = toupper(key[k++]);
+                if (ch == 'J') ch = 'I'; // Handling I and J as the same letter
+                if (!strchr(keyTable[0], ch)) {
+                    keyTable[i][j] = ch;
+                    break;
+                }
+            }
+            if (k == strlen(key)) break;
+        }
+    }
+
+    // Fill the key table with remaining letters
+    char alphabet[] = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (!keyTable[i][j]) {
+                while (k < strlen(alphabet)) {
+                    char ch = alphabet[k++];
+                    if (!strchr(key, ch)) {
+                        keyTable[i][j] = ch;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Decrypting the ciphertext
+    cleanString(ciphertext);
+    int len = strlen(ciphertext);
+
+    for (i = 0; i < len; i += 2) {
+        int row1, col1, row2, col2;
+        findPosition(keyTable, ciphertext[i], &row1, &col1);
+        findPosition(keyTable, ciphertext[i + 1], &row2, &col2);
+
+        if (row1 == row2) {
+            printf("%c%c", keyTable[row1][(col1 + 4) % 5], keyTable[row2][(col2 + 4) % 5]);
+        } else if (col1 == col2) {
+            printf("%c%c", keyTable[(row1 + 4) % 5][col1], keyTable[(row2 + 4) % 5][col2]);
+        } else {
+            printf("%c%c", keyTable[row1][col2], keyTable[row2][col1]);
+        }
+    }
+    printf("\n");
+}
+
+// Example usage
+int main() {
+    char ciphertext[] = "KXJEY UREBE ZWEHE WRYTU HEYFS KREHE GOYFI WTTTU OLKSY CAJPO BOTEI ZONTX BYBNT GONEY CUZWR GDSON SXBOU YWRHE BAAHY USEDQ";
+    char key[] = "PT109"; // Key or key phrase
+
+    decryptPlayfair(ciphertext, key);
+
+    return 0;
+}
