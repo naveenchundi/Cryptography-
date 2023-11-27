@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to generate a monoalphabetic cipher sequence from a keyword
+void generateCipherSequence(char *keyword, char *cipherSequence) {
+    int keywordLength = strlen(keyword);
+    int alphabet[26] = {0};
+
+    // Mark letters used in the keyword
+    for (int i = 0; i < keywordLength; i++) {
+        char letter = toupper(keyword[i]);
+        if (isalpha(letter) && !alphabet[letter - 'A']) {
+            alphabet[letter - 'A'] = 1;
+            cipherSequence[i] = letter;
+        }
+    }
+
+    // Fill the remaining unused letters in normal order
+    int index = keywordLength;
+    for (int i = 0; i < 26; i++) {
+        if (!alphabet[i]) {
+            cipherSequence[index] = 'A' + i;
+            index++;
+        }
+    }
+
+    cipherSequence[26] = '\0';
+}
+
+// Function to perform monoalphabetic substitution
+void monoalphabeticCipher(char *plaintext, char *cipherSequence) {
+    int plaintextLength = strlen(plaintext);
+    char ciphertext[plaintextLength];
+
+    for (int i = 0; i < plaintextLength; i++) {
+        if (isalpha(plaintext[i])) {
+            char base = isupper(plaintext[i]) ? 'A' : 'a';
+            int index = toupper(plaintext[i]) - 'A';
+            ciphertext[i] = isupper(plaintext[i]) ? toupper(cipherSequence[index]) : tolower(cipherSequence[index]);
+        } else {
+            ciphertext[i] = plaintext[i]; // Preserve non-alphabetic characters
+        }
+    }
+
+    ciphertext[plaintextLength] = '\0';
+
+    printf("Plaintext: %s\nCipher Sequence: %s\nCiphertext: %s\n", plaintext, cipherSequence, ciphertext);
+}
+
+// Example usage
+int main() {
+    char keyword[] = "CIPHER";
+    char cipherSequence[27]; // One extra space for null terminator
+    generateCipherSequence(keyword, cipherSequence);
+
+    char plaintext[] = "Hello, World!";
+    monoalphabeticCipher(plaintext, cipherSequence);
+
+    return 0;
+}
