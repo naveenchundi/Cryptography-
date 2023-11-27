@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to decipher the affine Caesar cipher with known 'B' and 'U'
+void breakAffineCipher(char *ciphertext) {
+    int freq[26] = {0};
+
+    // Count the frequency of each letter in the ciphertext
+    for (int i = 0; i < strlen(ciphertext); i++) {
+        if (isalpha(ciphertext[i])) {
+            int index = tolower(ciphertext[i]) - 'a';
+            freq[index]++;
+        }
+    }
+
+    // Find the most and second most frequent letters
+    int maxFreq = 0, secondFreq = 0;
+    char mostFreqLetter = ' ', secondFreqLetter = ' ';
+    
+    for (int i = 0; i < 26; i++) {
+        if (freq[i] > maxFreq) {
+            secondFreq = maxFreq;
+            secondFreqLetter = mostFreqLetter;
+
+            maxFreq = freq[i];
+            mostFreqLetter = 'a' + i;
+        } else if (freq[i] > secondFreq && freq[i] != maxFreq) {
+            secondFreq = freq[i];
+            secondFreqLetter = 'a' + i;
+        }
+    }
+
+    // Assuming 'B' corresponds to 'E' and 'U' corresponds to 'T'
+    int shiftBtoE = (mostFreqLetter - 'E' + 26) % 26;
+    int shiftUtoT = (secondFreqLetter - 'T' + 26) % 26;
+
+    // Calculate 'a' and 'b' values for the affine cipher
+    int a = (shiftBtoE * modInverse(shiftUtoT, 26)) % 26;
+    int b = (mostFreqLetter - 'A' - (a * ('E' - 'A')) + 26) % 26;
+
+    printf("Assuming 'B' corresponds to 'E' and 'U' corresponds to 'T':\n");
+    printf("Calculated key: a = %d, b = %d\n", a, b);
+}
+
+// Function to calculate the modular inverse
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+            return x;
+        }
+    }
+    return -1; // If modular inverse doesn't exist
+}
+
+// Example usage
+int main() {
+    char ciphertext[] = "BUABUUAABBUBUBUBUBBUBBBBUBUBUU";
+    
+    breakAffineCipher(ciphertext);
+
+    return 0;
+}
