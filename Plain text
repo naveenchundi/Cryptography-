@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <ctype.h>
+
+// Function to perform the affine Caesar cipher
+void affineCaesarCipher(int a, int b, char *plaintext) {
+    int plaintextLength = strlen(plaintext);
+    char ciphertext[plaintextLength];
+
+    for (int i = 0; i < plaintextLength; i++) {
+        if (isalpha(plaintext[i])) {
+            char base = isupper(plaintext[i]) ? 'A' : 'a';
+            ciphertext[i] = (a * (plaintext[i] - base) + b) % 26 + base;
+        } else {
+            ciphertext[i] = plaintext[i]; // Preserve non-alphabetic characters
+        }
+    }
+
+    ciphertext[plaintextLength] = '\0';
+
+    printf("Plaintext: %s\nCiphertext: %s\n", plaintext, ciphertext);
+}
+
+// Example usage
+int main() {
+    char plaintext[] = "Hello, World!";
+    int a = 3; // Example value for a
+    int b = 5; // Example value for b
+
+    affineCaesarCipher(a, b, plaintext);
+
+    return 0;
+}
