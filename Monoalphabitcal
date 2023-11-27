@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to perform monoalphabetic substitution cipher
+void monoalphabeticSubstitution(char text[], char key[]) {
+    int i;
+    int len = strlen(text);
+
+    // Convert the key to uppercase
+    for (i = 0; key[i]; i++) {
+        key[i] = toupper(key[i]);
+    }
+
+    // Create the mapping from plaintext to ciphertext alphabet
+    char plainAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char cipherAlphabet[26];
+
+    // Create the substitution cipher based on the provided key
+    for (i = 0; i < 26; i++) {
+        if (isalpha(key[i])) {
+            cipherAlphabet[i] = key[i];
+        } else {
+            printf("Key should contain only alphabetic characters.\n");
+            return;
+        }
+    }
+
+    // Encrypt the text
+    for (i = 0; i < len; i++) {
+        if (isalpha(text[i])) {
+            char c = toupper(text[i]);
+            int index = c - 'A';
+            if (islower(text[i])) {
+                text[i] = tolower(cipherAlphabet[index]);
+            } else {
+                text[i] = cipherAlphabet[index];
+            }
+        }
+    }
+
+    printf("Encrypted Text: %s\n", text);
+}
+
+int main() {
+    char plaintext[100];
+    char key[26];
+
+    printf("Enter the plaintext: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+
+    printf("Enter the key (26 characters): ");
+    fgets(key, sizeof(key), stdin);
+
+    monoalphabeticSubstitution(plaintext, key);
+
+    return 0;
+}
